@@ -14,5 +14,4 @@ __pycache__
 *.out
 
 # Project specific
-/data/*
-!/data/README.md
+*.geojson
