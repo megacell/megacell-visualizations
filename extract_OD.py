@@ -8,6 +8,7 @@ give the same result
 
 import json
 from pdb import set_trace as T
+from utils import FeatureCollection
 
 drop_tables_sql = '''
 DROP TABLE IF EXISTS tmp_orig_taz;
@@ -51,15 +52,6 @@ FROM tmp_orig_taz AS o, tmp_dest_taz AS d
 WHERE o.id = d.id;
 '''
 
-def make_feature_collection(features):
-    return {'type': 'FeatureCollection',
-            'features': features}
-
-def make_feature(geom, props):
-    return {'type': 'Feature',
-            'geometry': geom,
-            'properties': props}
-
 def execute(conn, outfile, routes=True):
     cur = conn.cursor()
     cur.execute(drop_tables_sql)
@@ -68,7 +60,8 @@ def execute(conn, outfile, routes=True):
     else:
         cur.execute(od_trajectory_tables_sql)
     cur.execute(select_sql)
-    feature_list = [make_feature(json.loads(polygon), {'taz_id': int(taz_id)})
-                    for polygon, taz_id in cur.fetchall()]
-    feature_collection = make_feature_collection(feature_list)
-    json.dump(feature_collection, open(outfile, 'w'))
+
+    fc = FeatureCollection()
+    for polygon, taz_id in cur.fetchall():
+        fc.add(json.loads(polygon), {'taz_id': int(taz_id)})
+    fc.dump(open(outfile, 'w'))
