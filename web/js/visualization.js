@@ -1,3 +1,19 @@
+var styleFunction = function(feature, resolution) {
+    var prop = feature.getProperties();
+    if (prop.weight) {
+        var map = RedGreenColorMapper([0, 20], LogScaler);
+        console.log(map(prop.weight));
+        var sty = new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: map(prop.weight),
+                width: 2
+            })
+        });
+        return [sty];
+    }
+    return styles[feature.getGeometry().getType()];
+};
+
 function renderjson(url) {
     var vectorLayer = new ol.layer.Vector({
         source: new ol.source.GeoJSON({
@@ -12,7 +28,8 @@ function renderjson(url) {
     var map = new ol.Map({
         layers: [
             new ol.layer.Tile({
-                source: new ol.source.OSM()
+                source: new ol.source.OSM(),
+                opacity: 0.3
             }),
             vectorLayer
         ],

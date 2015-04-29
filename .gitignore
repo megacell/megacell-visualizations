@@ -15,4 +15,6 @@ __pycache__
 
 # Project specific
 *.geojson
+*.pkl
 /web/js/ol-debug.js
+/screenshots/

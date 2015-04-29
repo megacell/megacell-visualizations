@@ -35,11 +35,10 @@ var styles = {
     'Polygon': [new ol.style.Style({
         stroke: new ol.style.Stroke({
             color: 'blue',
-            lineDash: [4],
             width: 3
         }),
         fill: new ol.style.Fill({
-            color: 'rgba(0, 0, 255, 0.1)'
+            color: 'rgba(0, 0, 255, 0.3)'
         })
     })],
     'GeometryCollection': [new ol.style.Style({
@@ -67,8 +66,4 @@ var styles = {
             color: 'rgba(255,0,0,0.2)'
         })
     })]
-};
-
-var styleFunction = function(feature, resolution) {
-    return styles[feature.getGeometry().getType()];
 };

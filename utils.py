@@ -1,3 +1,5 @@
+import os.path
+import pickle
 import json
 import matplotlib.pyplot as plt
 
@@ -23,3 +25,15 @@ class FeatureCollection:
 def gyr_cmap(N):
     cmap = plt.get_cmap('RdYlGn')
     return lambda x: '#{:02x}{:02x}{:02x}'.format(*cmap(((N-x) * 256)/N, bytes=True))
+
+def cache(cache_file):
+    def wrap(f):
+        def cached(*args):
+            if not os.path.isfile(cache_file):
+                res = f(*args)
+                pickle.dump(res, open(cache_file, 'wb'))
+            else:
+                res = pickle.load(open(cache_file))
+            return res
+        return cached
+    return wrap
