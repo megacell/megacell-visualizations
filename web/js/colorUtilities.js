@@ -67,11 +67,12 @@ function LinearScaler(values) {
 function RedGreenColorMapper(values, Scaler){
     var scale = Scaler(values);
 
-    return function(n){
+    return function(n, opacity){
+        opacity = opacity || 1;
         var h = (1-scale(n))/3;
         var s = 1;
         var v = 1;
-        color = rgbToHex(HSVtoRGB(h,s,v));
-        return color;
+        var c = HSVtoRGB(h,s,v);
+        return 'rgba('+ c.r + ', ' + c.g + ',' + c.b + ',' + opacity +')';
     };
 }

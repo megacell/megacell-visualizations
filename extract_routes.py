@@ -5,7 +5,7 @@ This script extracts route geometry
 import json
 from pdb import set_trace as T
 
-from utils import FeatureCollection, gyr_cmap
+from utils import *
 from extract_links import get_flows, get_links
 
 routes_sql = '''
@@ -46,25 +46,23 @@ def execute(conn, outfile):
     fc = FeatureCollection()
     cmap = gyr_cmap(20)
 
-    links = get_links()
-    flows = get_flows()
 
-    if True:
-        if DEST:
-            cur.execute(od_routes_sql, (ORIG_ID, DEST_ID, NUM_ROUTES))
-        else:
-            cur.execute(routes_sql, (ORIG_ID, NUM_ROUTES))
-        all_data = sorted(cur.fetchall())
-        for flow_count, geom in all_data:
-            fc.add(json.loads(geom), {'weight': flow_count})
-        cur.execute(orig_sql, (ORIG_ID,))
+    if DEST:
+        cur.execute(od_routes_sql, (ORIG_ID, DEST_ID, NUM_ROUTES))
+    else:
+        cur.execute(routes_sql, (ORIG_ID, NUM_ROUTES))
+    results = sorted(cur.fetchall())
+    scale = get_scale(results[-1][0]) # max flow
+    for flow_count, geom in results:
+        fc.add(json.loads(geom), {'weight': scale(flow_count)})
+
+    cur.execute(orig_sql, (ORIG_ID,))
+    fc.add(json.loads(cur.fetchone()[0]), {})
+    if DEST:
+        cur.execute(dest_sql, (DEST_ID,))
         fc.add(json.loads(cur.fetchone()[0]), {})
-        if DEST:
-            cur.execute(dest_sql, (DEST_ID,))
-            fc.add(json.loads(cur.fetchone()[0]), {})
-    elif True:
-        pass
+
     fc.dump(open(outfile, 'w'))
 
 if __name__ == "__main__":
-    main()
+    execute(get_conn(), 'web/data/routes_paths.geojson')

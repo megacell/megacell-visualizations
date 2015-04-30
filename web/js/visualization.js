@@ -1,17 +1,33 @@
+function makeLineStyle(color){
+    return new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: color,
+            width: 2
+        })
+    });
+}
+
+function makePolyStyle(color){
+    return new ol.style.Style({
+        fill: new ol.style.Fill({
+            color: color
+        })
+    });
+}
+
 var styleFunction = function(feature, resolution) {
     var prop = feature.getProperties();
+    var type = feature.getGeometry().getType();
     if (prop.weight) {
-        var map = RedGreenColorMapper([0, 20], LogScaler);
-        console.log(map(prop.weight));
-        var sty = new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: map(prop.weight),
-                width: 2
-            })
-        });
-        return [sty];
+        var map = RedGreenColorMapper([0, 1], LogScaler);
+        if (type == 'LineString' || type == 'MultiLineString') {
+            return [makeLineStyle(map(prop.weight, 0.9))];
+        } else if (type == 'Polygon' || type == 'MultiPolygon') {
+            return [makePolyStyle(map(prop.weight, 0.5))];
+        }
+
     }
-    return styles[feature.getGeometry().getType()];
+    return styles[type];
 };
 
 function renderjson(url) {
@@ -29,7 +45,12 @@ function renderjson(url) {
         layers: [
             new ol.layer.Tile({
                 source: new ol.source.OSM(),
-                opacity: 0.3
+                opacity: 0.3,
+                eventListeners: {
+                    featureclick: function(e) {
+                        console.log(e.feature.getProperties());
+                    }
+                }
             }),
             vectorLayer
         ],
@@ -40,11 +61,12 @@ function renderjson(url) {
             })
         }),
         view: new ol.View({
-            center: ol.proj.transform([-118.0226926,34.098475], 'EPSG:4326', 'EPSG:3857'),
+            center: ol.proj.transform([-118.0026926,34.098475], 'EPSG:4326', 'EPSG:3857'),
             zoom: 11
         })
     });
 }
 //
 
-renderjson('data/routes_paths.geojson');
+//renderjson('data/routes_paths.geojson');
+renderjson('data/routes_through_link.geojson');

@@ -8,7 +8,7 @@ give the same result
 
 import json
 from pdb import set_trace as T
-from utils import FeatureCollection
+from utils import *
 
 drop_tables_sql = '''
 DROP TABLE IF EXISTS tmp_orig_taz;
@@ -65,3 +65,16 @@ def execute(conn, outfile, routes=True):
     for polygon, taz_id in cur.fetchall():
         fc.add(json.loads(polygon), {'taz_id': int(taz_id)})
     fc.dump(open(outfile, 'w'))
+
+@cache('web/data/od_geom.pkl')
+def get_od_geom():
+    cur = get_conn().cursor()
+    cur.execute(drop_tables_sql)
+    cur.execute(od_trajectory_tables_sql)
+    cur.execute(select_sql)
+    data = {int(taz_id): json.loads(polygon) for polygon, taz_id in cur.fetchall()}
+    return data
+
+if __name__ == "__main__":
+    execute(get_conn(), 'web/data/od_route_polygons.geojson', routes=True)
+    execute(get_conn(), 'web/data/od_trajectory_polygons.geojson', routes=False)

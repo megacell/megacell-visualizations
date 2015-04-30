@@ -1,4 +1,5 @@
 import os.path
+import psycopg2
 import pickle
 import json
 import matplotlib.pyplot as plt
@@ -37,3 +38,9 @@ def cache(cache_file):
             return res
         return cached
     return wrap
+
+def get_conn():
+    return psycopg2.connect(database='geodjango', user='megacell')
+
+def get_scale(max_val):
+    return lambda x: float(x) / max_val

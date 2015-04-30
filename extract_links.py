@@ -1,12 +1,11 @@
 """
 Extract true link flows
 """
-
 import psycopg2
 import json
 from collections import defaultdict
 
-from utils import cache
+from utils import *
 
 # This is the value used for ISTTT experients, see route_loader in experiment 2
 COMMUTE_DIRECTION = 0
@@ -45,3 +44,12 @@ def get_links():
     for (link_id, geom) in cur:
         links[link_id] = json.loads(geom)
     return links
+
+def execute(outfile):
+    fc = FeatureCollection()
+    for link_id, geom in get_links().items():
+        fc.add(geom, {'id': link_id})
+    fc.dump(open(outfile, 'w'))
+
+if __name__ == '__main__':
+    execute('web/data/links.geojson')
