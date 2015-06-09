@@ -3,6 +3,7 @@ This script extracts the solver results and calculates the link flow errors
 '''
 
 import json
+import pickle
 import numpy as np
 import scipy.io as sio
 from pdb import set_trace as T
@@ -59,9 +60,18 @@ def get_all_flows(output_mat):
     return control, results
 
 def main():
-    control_links, routes = get_all_flows(config['outmat'])
-    T()
+    control_links, results_links = pickle.load(open('control_links.pkl')), pickle.load(open('results_links.pkl')) #get_all_flows(config['outmat'])
 
+    fc = FeatureCollection()
+    links = get_links()
+
+    for link_id, geom in links.items():
+        control, result = control_links[link_id], results_links[link_id]
+        difference = abs(float(control - result)) / control if control != 0 else 0
+        fc.add(geom, {'weight': difference})
+
+    fc.dump(open(config['outfile'], 'w'))
+        
 if __name__ == '__main__':
     main()
     
