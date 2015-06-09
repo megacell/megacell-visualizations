@@ -15,6 +15,9 @@ __pycache__
 
 # Project specific
 *.geojson
+*.json
 *.pkl
 /web/js/ol-debug.js
 /screenshots/
+/solver_output/
+/.ipynb_checkpoints/

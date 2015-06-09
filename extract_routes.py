@@ -27,16 +27,13 @@ WHERE orig_taz=%s and dest_taz=%s and od_route_index < %s;
 '''
 
 OD_sql = '''
-SELECT ST_AsGeoJSON(ST_ConvexHull(ST_Collect({0}_point)))
-FROM experiment2_routes
-WHERE {1}_taz=%s;
+SELECT ST_AsGeoJSON(geom)
+FROM taz_geometry
+WHERE taz_id=%s;
 '''
-orig_sql = OD_sql.format('start','orig')
-dest_sql = OD_sql.format('end','dest')
-
-ORIG_ID = 22113000 # 21107000 #
-DEST_ID = 22307000 #22091000
-DEST = True
+ORIG_ID = 22335000 #22306000 #22113000 #
+DEST_ID = 22335000 #22307000 #
+DEST = False
 
 NUM_ROUTES = 30
 
@@ -45,7 +42,6 @@ def execute(conn, outfile):
     cur = conn.cursor()
     fc = FeatureCollection()
     cmap = gyr_cmap(20)
-
 
     if DEST:
         cur.execute(od_routes_sql, (ORIG_ID, DEST_ID, NUM_ROUTES))
@@ -56,10 +52,10 @@ def execute(conn, outfile):
     for flow_count, geom in results:
         fc.add(json.loads(geom), {'weight': scale(flow_count)})
 
-    cur.execute(orig_sql, (ORIG_ID,))
+    cur.execute(OD_sql, (ORIG_ID,))
     fc.add(json.loads(cur.fetchone()[0]), {})
     if DEST:
-        cur.execute(dest_sql, (DEST_ID,))
+        cur.execute(OD_sql, (DEST_ID,))
         fc.add(json.loads(cur.fetchone()[0]), {})
 
     fc.dump(open(outfile, 'w'))

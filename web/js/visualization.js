@@ -1,35 +1,3 @@
-function makeLineStyle(color){
-    return new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: color,
-            width: 2
-        })
-    });
-}
-
-function makePolyStyle(color){
-    return new ol.style.Style({
-        fill: new ol.style.Fill({
-            color: color
-        })
-    });
-}
-
-var styleFunction = function(feature, resolution) {
-    var prop = feature.getProperties();
-    var type = feature.getGeometry().getType();
-    if (prop.weight) {
-        var map = RedGreenColorMapper([0, 1], LogScaler);
-        if (type == 'LineString' || type == 'MultiLineString') {
-            return [makeLineStyle(map(prop.weight, 0.9))];
-        } else if (type == 'Polygon' || type == 'MultiPolygon') {
-            return [makePolyStyle(map(prop.weight, 0.5))];
-        }
-
-    }
-    return styles[type];
-};
-
 function renderjson(url) {
     var vectorLayer = new ol.layer.Vector({
         source: new ol.source.GeoJSON({
@@ -69,4 +37,5 @@ function renderjson(url) {
 //
 
 //renderjson('data/routes_paths.geojson');
+//renderjson('data/od_geom.geojson');
 renderjson('data/routes_through_link.geojson');

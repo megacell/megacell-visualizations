@@ -14,7 +14,7 @@ from extract_links import get_flows, get_links
 from extract_OD import get_od_geom
 
 NUM_ROUTES = 10
-LINK_ID = 739# 6734# 1051#
+LINK_ID = 739# 1051# 6734#
 PERCENT_THRESHOLD = 0.05
 FLOW_THRESHOLD = 5
 

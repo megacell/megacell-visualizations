@@ -15,3 +15,18 @@ Visualization Ideas
     3. Link flow errors (|Ax - b|)
     4. Link closure: close off a link and see percentage of commuters in each
        TAZ affected (this can be done without solver output too)
+
+
+Feedback
+--------
+Display UE and inference.
+delta maps (link flows from matsim/solver/UE inference)
+
+
+1. First visualization shown for routes between two cells
+-> have revised geometry for the TAZ
+
+2. Second visualization shown: all routes emerging from an Origin
+- generate quantitative plots containing (color coding, why is there only 40 ODs? etc.)
+
+3. Work with Alexei and Andrew to generate a movie for agents in L.A. based on MATSIM

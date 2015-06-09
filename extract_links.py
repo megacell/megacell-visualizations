@@ -25,6 +25,9 @@ FROM link_geometry;
 
 @cache(FLOWS_FILE)
 def get_flows():
+    ''' Returns LINKCOUNTS, a dictionary mapping link ids to trajectory flows
+    through each link.
+    '''
     conn = psycopg2.connect(database='geodjango', user='megacell')
     cur = conn.cursor()
     cur.execute(TRAJECTORIES_SQL, (COMMUTE_DIRECTION, ))
@@ -36,6 +39,9 @@ def get_flows():
 
 @cache(LINKS_FILE)
 def get_links():
+    ''' Returns LINKS, a dictionary of all links mapping link ids to link
+    geometry in geojson form.
+    '''
     conn = psycopg2.connect(database='geodjango', user='megacell')
     cur = conn.cursor()
     cur.execute(LINKS_SQL)

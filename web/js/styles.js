@@ -67,3 +67,48 @@ var styles = {
         })
     })]
 };
+
+function makeLineStyle(color){
+    return new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: color,
+            width: 2
+        })
+    });
+}
+
+function makePolyStyle(color){
+    return new ol.style.Style({
+        fill: new ol.style.Fill({
+            color: color
+        })
+    });
+}
+
+var styleFunction = function(feature, resolution) {
+    var prop = feature.getProperties();
+    var type = feature.getGeometry().getType();
+    if (prop.weight) {
+        var map = RedGreenColorMapper([0, 1], LinearScaler);
+        if (type == 'LineString' || type == 'MultiLineString') {
+            return [makeLineStyle(map(prop.weight, 0.9))];
+        } else if (type == 'Polygon' || type == 'MultiPolygon') {
+            return [makePolyStyle(map(prop.weight, 0.5))];
+        }
+
+    }
+    return styles[type];
+};
+
+
+var travelingStyle = new ol.style.Circle({
+    radius: 5,
+    snapToPixel: false,
+    fill: new ol.style.Fill({color: 'green'})
+});
+
+var completedStyle = new ol.style.Circle({
+    radius: 5,
+    snapToPixel: false,
+    fill: new ol.style.Fill({color: 'orange'})
+});

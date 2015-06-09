@@ -29,8 +29,8 @@ def gyr_cmap(N):
 
 def cache(cache_file):
     def wrap(f):
-        def cached(*args):
-            if not os.path.isfile(cache_file):
+        def cached(*args, **kwargs):
+            if not os.path.isfile(cache_file) or kwargs.get('refresh'):
                 res = f(*args)
                 pickle.dump(res, open(cache_file, 'wb'))
             else:
