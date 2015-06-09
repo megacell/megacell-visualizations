@@ -20,9 +20,10 @@ WHERE r.od_route_index < %(num_routes)s AND w.density_id = %(density)s
 ORDER BY w.waypoints, r.orig_taz, r.dest_taz, r.od_route_index;
 """
 
-config = { 'num_routes': 10
-         , 'density': 950
-         , 'outmat': 'solver_output/950/output_waypoints10.mat'
+config = { 'num_routes': 30
+         , 'density': 1
+         , 'outmat': 'solver_output/1/output_waypoints30.mat'
+         , 'outfile': 'web/data/results_error.geojson'
          }
 
 def get_link_dict():
@@ -30,43 +31,37 @@ def get_link_dict():
     '''
     return {link: 0 for link in get_links().keys()}
 
-def get_control_flows():
-    ''' Returns LINKS, a dictionary mapping each link id to route flow through
-    that link based on CONFIG as defined at beginning of this file. Also returns
-    ROUTES, a list remembering the order of routes that are put into the
-    experiment matrices.
+def get_all_flows(output_mat):
+    ''' Returns CONTROL, a dictionary mapping each link id to route flow through
+    that link based on CONFIG as defined at beginning of this file, as well as
+    RESULTS, a dictionary mapping each link id to the link flows computed by the 
+    solver.
     '''
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(route_loader_sql, config)
-
-    links = get_link_dict()
-    routes = cur.fetchall()
-
-    for link_seq, flow in routes:
-        for link_id in link_seq:
-            links[link_id] += flow
-
-    return links, routes
-
-def get_experiment_link_flows(routes, output_mat, outfile):
-    ''' Returns LINKS, a dictionary mapping each link id to the link flows
-    computed by the solver.
-    '''
+    
     out_mat = sio.loadmat(output_mat)
     x = np.squeeze(out_mat['orig_x'])
-    T()
-    assert len(x) == len(routes), "Number of routes doesn't match!"
 
-    links = get_link_dict()
-    for scale, (link_seq, flow) in zip(x, routes):
+    control = get_link_dict()
+    results = get_link_dict()
+    
+    x_index = 0
+    for link_seq, flow in cur:
         for link_id in link_seq:
-            links[link_id] += flow * scale
+            control[link_id] += flow
+            results[link_id] += flow * x[x_index]
+        x_index += 1
+
+    assert len(x) == x_index, "Solver output num routes: {}, Matrix num routes: {}".format(len(x), x_index)
+
+    return control, results
+
+def main():
+    control_links, routes = get_all_flows(config['outmat'])
+    T()
 
 if __name__ == '__main__':
-    control_links, routes = get_control_flows()
-    result_links = get_experiment_link_flows(
-                     routes
-                   , config['outmat']
-                   , 'web/data/results_error.geojson')
-    T()
+    main()
+    
