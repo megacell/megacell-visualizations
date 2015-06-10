@@ -6,7 +6,7 @@ import json
 import pickle
 import numpy as np
 import scipy.io as sio
-from pdb import set_trace as T
+from ipdb import set_trace as T
 
 from utils import *
 from extract_links import get_links
@@ -35,19 +35,19 @@ def get_link_dict():
 def get_all_flows(output_mat):
     ''' Returns CONTROL, a dictionary mapping each link id to route flow through
     that link based on CONFIG as defined at beginning of this file, as well as
-    RESULTS, a dictionary mapping each link id to the link flows computed by the 
+    RESULTS, a dictionary mapping each link id to the link flows computed by the
     solver.
     '''
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(route_loader_sql, config)
-    
+
     out_mat = sio.loadmat(output_mat)
     x = np.squeeze(out_mat['orig_x'])
 
     control = get_link_dict()
     results = get_link_dict()
-    
+
     x_index = 0
     for link_seq, flow in cur:
         for link_id in link_seq:
@@ -67,11 +67,23 @@ def main():
 
     for link_id, geom in links.items():
         control, result = control_links[link_id], results_links[link_id]
-        difference = abs(float(control - result)) / control if control != 0 else 0
-        fc.add(geom, {'weight': difference})
+        if control != 0:
+            difference = abs(float(control - result)) / control * 6
+            params = {'weight': difference}
+        else:
+            params = {}
+        fc.add(geom, params)
 
-    fc.dump(open(config['outfile'], 'w'))
-        
+    fc.dump(config['outfile'])
+
+
+    lc = FeatureCollection()
+    max_link = max(control_links, key=control_links.get)
+
+    for link_id, geom in links.items():
+        lc.add(geom, {'weight': control_links[link_id] * 1.0 / max_link})
+
+    lc.dump('web/data/results_links.geojson')
+
 if __name__ == '__main__':
     main()
-    
