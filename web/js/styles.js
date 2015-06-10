@@ -10,7 +10,7 @@ var styles = {
     })],
     'LineString': [new ol.style.Style({
         stroke: new ol.style.Stroke({
-            color: 'green',
+            color: 'grey',
             width: 2
         })
     })],
@@ -89,7 +89,7 @@ var styleFunction = function(feature, resolution) {
     var prop = feature.getProperties();
     var type = feature.getGeometry().getType();
     if (prop.weight) {
-        var map = RedGreenColorMapper([0, 1], LinearScaler);
+        var map = RedGreenColorMapper([0, 1], LogScaler);
         if (type == 'LineString' || type == 'MultiLineString') {
             return [makeLineStyle(map(prop.weight, 0.9))];
         } else if (type == 'Polygon' || type == 'MultiPolygon') {

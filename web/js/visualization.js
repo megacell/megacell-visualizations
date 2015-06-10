@@ -1,4 +1,8 @@
+var mapid = 'map';
+
 function renderjson(url) {
+    $('#map').empty();
+
     var vectorLayer = new ol.layer.Vector({
         source: new ol.source.GeoJSON({
             projection : 'EPSG:3857',
@@ -22,7 +26,7 @@ function renderjson(url) {
             }),
             vectorLayer
         ],
-        target: 'map',
+        target: mapid,
         controls: ol.control.defaults({
             attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
                 collapsible: false
@@ -34,8 +38,18 @@ function renderjson(url) {
         })
     });
 }
-//
 
-//renderjson('data/routes_paths.geojson');
-//renderjson('data/od_geom.geojson');
-renderjson('data/routes_through_link.geojson');
+$(function () {
+    $("#link-flow-errors").click(function(){
+        renderjson('data/results_error.geojson');});
+    $("#link-flows").click(function(){
+        renderjson('data/results_links.geojson');});
+    $("#routes-through-link").click(function(){
+        renderjson('data/routes_through_link.geojson');});
+    $("#routes-ods").click(function(){
+        renderjson('data/routes_paths.geojson');});
+    $("#ods").click(function(){
+        renderjson('data/od_geom.geojson');});
+});
+
+renderjson('data/results_links.geojson');
