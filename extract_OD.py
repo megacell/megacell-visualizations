@@ -22,7 +22,7 @@ def get_od_geojson():
     fc = FeatureCollection()
     for taz_id, geom in get_od_geom().items():
         fc.add(geom, {'taz_id':  taz_id})
-    fc.dump(open('web/data/od_geom.geojson', 'w'))
+    fc.dump('web/data/od_geom.geojson')
 
 if __name__ == "__main__":
     get_od_geom(refresh=True)

@@ -15,8 +15,8 @@ class FeatureCollection:
         return {'type': 'FeatureCollection',
                 'features': self.features}
 
-    def dump(self, file_ob):
-        json.dump(self.export(), file_ob)
+    def dump(self, file_name):
+        json.dump(self.export(), open(file_name, 'wb'))
 
     def add(self, geom, props):
         self.features.append({'type': 'Feature',

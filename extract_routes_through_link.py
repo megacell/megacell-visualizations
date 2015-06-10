@@ -73,7 +73,7 @@ def execute(conn, outfile):
         fc.add(od_geom, {'weight': percent * 3})
 
     print len(fc.features)
-    fc.dump(open(outfile, 'w'))
+    fc.dump(outfile)
 
 if __name__ == "__main__":
     execute(get_conn(), 'web/data/routes_through_link.geojson')

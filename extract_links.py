@@ -55,7 +55,7 @@ def execute(outfile):
     fc = FeatureCollection()
     for link_id, geom in get_links().items():
         fc.add(geom, {'id': link_id})
-    fc.dump(open(outfile, 'w'))
+    fc.dump(outfile)
 
 if __name__ == '__main__':
     execute('web/data/links.geojson')

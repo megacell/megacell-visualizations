@@ -64,7 +64,7 @@ def execute(conn, outfile, routes=True):
     fc = FeatureCollection()
     for polygon, taz_id in cur.fetchall():
         fc.add(json.loads(polygon), {'taz_id': int(taz_id)})
-    fc.dump(open(outfile, 'w'))
+    fc.dump(outfile)
 
 @cache('web/data/od_geom.pkl')
 def get_od_geom():

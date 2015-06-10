@@ -58,7 +58,7 @@ def execute(conn, outfile):
         cur.execute(OD_sql, (DEST_ID,))
         fc.add(json.loads(cur.fetchone()[0]), {})
 
-    fc.dump(open(outfile, 'w'))
+    fc.dump(outfile)
 
 if __name__ == "__main__":
     execute(get_conn(), 'web/data/routes_paths.geojson')
