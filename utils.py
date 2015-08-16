@@ -2,6 +2,7 @@ import os.path
 import psycopg2
 import pickle
 import json
+import copy
 import matplotlib.pyplot as plt
 
 class FeatureCollection:
@@ -19,9 +20,17 @@ class FeatureCollection:
         json.dump(self.export(), open(file_name, 'wb'))
 
     def add(self, geom, props):
+        try:
+            geom = json.loads(geom)
+        except:
+            pass
         self.features.append({'type': 'Feature',
                               'geometry': geom,
                               'properties': props})
+    def deepcopy(self):
+        fc = FeatureCollection()
+        fc.features = copy.deepcopy(self.features)
+        return fc
 
 def gyr_cmap(N):
     cmap = plt.get_cmap('RdYlGn')

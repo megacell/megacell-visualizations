@@ -6,10 +6,19 @@ import json
 import pickle
 import numpy as np
 import scipy.io as sio
-from ipdb import set_trace as T
+from pdb import set_trace as T
 
 from utils import *
 from extract_links import get_links
+
+config = { 'num_routes': 30
+         , 'density': 1
+         , 'outmat': 'solver_output/1/output_waypoints30.mat'
+         , 'err_file': 'web/data/results_error.geojson'
+         , 'linkcounts_file': 'web/data/results_links.geojson'
+         , 'control_links' : 'web/data/control_links.pkl'
+         , 'results_links' : 'web/data/results_links.pkl'
+         }
 
 # SQL needed to load individual routes
 route_loader_sql = """
@@ -21,11 +30,15 @@ WHERE r.od_route_index < %(num_routes)s AND w.density_id = %(density)s
 ORDER BY w.waypoints, r.orig_taz, r.dest_taz, r.od_route_index;
 """
 
-config = { 'num_routes': 30
-         , 'density': 1
-         , 'outmat': 'solver_output/1/output_waypoints30.mat'
-         , 'outfile': 'web/data/results_error.geojson'
-         }
+# Load sensors
+SENSORS_SQL = '''
+select ST_AsGeoJSON(location) from orm_sensor s;
+'''
+
+def get_sensors_json():
+    cur = get_conn().cursor()
+    cur.execute(SENSORS_SQL)
+    return [json.loads(l[0]) for l in cur]
 
 def get_link_dict():
     ''' Return a dictionary mapping all link ids to 0
@@ -60,7 +73,8 @@ def get_all_flows(output_mat):
     return control, results
 
 def main():
-    control_links, results_links = pickle.load(open('control_links.pkl')), pickle.load(open('results_links.pkl')) #get_all_flows(config['outmat'])
+    control_links = pickle.load(open(config['control_links']))
+    results_links = pickle.load(open(config['results_links']))
 
     fc = FeatureCollection()
     links = get_links()
@@ -69,21 +83,24 @@ def main():
         control, result = control_links[link_id], results_links[link_id]
         if control != 0:
             difference = abs(float(control - result)) / control * 6
-            params = {'weight': difference}
+            params = {'weight': difference, 'link_id': link_id}
         else:
             params = {}
         fc.add(geom, params)
 
-    fc.dump(config['outfile'])
-
+    fc.dump(config['err_file'])
 
     lc = FeatureCollection()
-    max_link = max(control_links, key=control_links.get)
+    max_link = max(control_links.values())
 
     for link_id, geom in links.items():
-        lc.add(geom, {'weight': control_links[link_id] * 1.0 / max_link})
+        lc.add(geom, {'weight': control_links[link_id] * 1.0 / max_link,
+                      'link_id': link_id})
 
-    lc.dump('web/data/results_links.geojson')
+    for sensor_geom in get_sensors_json():
+        lc.add(sensor_geom, {'sensor': True})
+
+    lc.dump(config['linkcounts_file'])
 
 if __name__ == '__main__':
     main()

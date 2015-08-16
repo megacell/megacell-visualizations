@@ -40,16 +40,24 @@ function renderjson(url) {
 }
 
 $(function () {
-    $("#link-flow-errors").click(function(){
-        renderjson('data/results_error.geojson');});
-    $("#link-flows").click(function(){
-        renderjson('data/results_links.geojson');});
-    $("#routes-through-link").click(function(){
-        renderjson('data/routes_through_link.geojson');});
-    $("#routes-ods").click(function(){
-        renderjson('data/routes_paths.geojson');});
-    $("#ods").click(function(){
-        renderjson('data/od_geom.geojson');});
+    window.onhashchange = function() {
+        var hash = location.hash;
+        if (hash == '#link-flow-errors') {
+            renderjson('data/results_error.geojson');
+        } else if (hash == '#link-flows') {
+            renderjson('data/results_links.geojson');
+        } else if (hash == '#routes-through-link') {
+            renderjson('data/routes_through_link.geojson');
+        } else if (hash == '#routes-ods') {
+            renderjson('data/routes_paths.geojson');
+        } else if (hash == '#ods') {
+            renderjson('data/od_geom.geojson');
+        } else if (hash.startsWith('#cellpaths')) {
+            var index = hash.slice(10);
+            console.log('data/cellpaths'+ index +'.geojson');
+            renderjson('data/cellpaths'+ index +'.geojson');
+        }
+    };
 });
 
 renderjson('data/results_links.geojson');

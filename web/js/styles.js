@@ -1,7 +1,7 @@
 var image = new ol.style.Circle({
-    radius: 5,
-    fill: null,
-    stroke: new ol.style.Stroke({color: 'red', width: 1})
+    radius: 1,
+    fill: new ol.style.Fill({color: 'blue'})
+    //stroke: new ol.style.Stroke({color: 'blue', width: 1})
 });
 
 var styles = {
@@ -10,7 +10,7 @@ var styles = {
     })],
     'LineString': [new ol.style.Style({
         stroke: new ol.style.Stroke({
-            color: 'grey',
+            color: '#e6e6e6',
             width: 2
         })
     })],
@@ -35,10 +35,10 @@ var styles = {
     'Polygon': [new ol.style.Style({
         stroke: new ol.style.Stroke({
             color: 'blue',
-            width: 3
+            width: 1
         }),
         fill: new ol.style.Fill({
-            color: 'rgba(0, 0, 255, 0.3)'
+            color: 'rgba(0, 0, 255, 0.1)'
         })
     })],
     'GeometryCollection': [new ol.style.Style({
@@ -88,8 +88,14 @@ function makePolyStyle(color){
 var styleFunction = function(feature, resolution) {
     var prop = feature.getProperties();
     var type = feature.getGeometry().getType();
-    if (prop.weight) {
-        var map = RedGreenColorMapper([0, 1], LogScaler);
+    if (prop.sensor) {
+        return styles['Point'];
+    } else if (prop.color) {
+        if (type == 'Polygon'|| type == 'MultiPolygon') {
+            return [makePolyStyle(prop.color)];
+        }
+    } else if (prop.weight) {
+        var map = RedGreenColorMapper([0, 0.3], LinearScaler);
         if (type == 'LineString' || type == 'MultiLineString') {
             return [makeLineStyle(map(prop.weight, 0.9))];
         } else if (type == 'Polygon' || type == 'MultiPolygon') {
