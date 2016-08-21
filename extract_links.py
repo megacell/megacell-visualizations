@@ -3,6 +3,7 @@ Extract true link flows
 """
 import psycopg2
 import json
+import csv
 from collections import defaultdict
 
 from utils import *
@@ -50,6 +51,10 @@ def get_links():
     for (link_id, geom) in cur:
         links[link_id] = json.loads(geom)
     return links
+
+def get_link_attrs():
+    reader = csv.DictReader(open('links.csv'))
+    return {int(line['ID']): line for line in reader}
 
 def execute(outfile):
     fc = FeatureCollection()

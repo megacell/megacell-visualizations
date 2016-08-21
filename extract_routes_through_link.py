@@ -14,7 +14,7 @@ from extract_links import get_flows, get_links
 from extract_OD import get_od_geom
 
 NUM_ROUTES = 10
-LINK_ID = 739# 1051# 6734#
+LINK_ID = 739#1051#6734#
 PERCENT_THRESHOLD = 0.05
 FLOW_THRESHOLD = 5
 
@@ -45,6 +45,9 @@ def execute(conn, outfile):
     cur = conn.cursor()
     fc = FeatureCollection()
 
+    fc.add({'type': 'Point',
+            'coordinates': get_links()[LINK_ID]['coordinates'][0]}, {})
+
     total_counts = {}
     cur.execute(orig_count_sql, (NUM_ROUTES, ))
     for count, taz_id in cur:
@@ -70,7 +73,7 @@ def execute(conn, outfile):
         if percent <= PERCENT_THRESHOLD:
             continue
         percents.append(percent)
-        fc.add(od_geom, {'weight': percent * 3})
+        fc.add(od_geom, {'weight': percent})
 
     print len(fc.features)
     fc.dump(outfile)

@@ -39,10 +39,10 @@ if __name__ == '__main__':
     cells = import_paths(CELLPATHS_FILE)
     link_geom = get_links()
     fc = cells_to_fc(cells)
-    compare = json.load(open(COMPARE_FILE))[:20]
+    compare = json.load(open(COMPARE_FILE))[:40]
     for i, datum in enumerate(compare):
         newfc = fc.deepcopy()
-        for c in datum['path']:
+        for c in datum['sstem_path']:
             newfc.add(cells[c].voronoi.json, {'color': 'rgba(255, 0, 0, 0.5)'})
         for c in datum['lsh']:
             newfc.add(cells[c].voronoi.json, {'color': 'rgba(0, 255, 0, 0.5)'})

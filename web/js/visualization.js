@@ -43,7 +43,7 @@ $(function () {
     window.onhashchange = function() {
         var hash = location.hash;
         if (hash == '#link-flow-errors') {
-            renderjson('data/results_error.geojson');
+            renderjson('data/results_error_att.geojson');
         } else if (hash == '#link-flows') {
             renderjson('data/results_links.geojson');
         } else if (hash == '#routes-through-link') {

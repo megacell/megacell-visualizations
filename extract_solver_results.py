@@ -9,7 +9,7 @@ import scipy.io as sio
 from pdb import set_trace as T
 
 from utils import *
-from extract_links import get_links
+from extract_links import get_links, get_link_attrs
 
 config = { 'num_routes': 30
          , 'density': 1
@@ -78,6 +78,7 @@ def main():
 
     fc = FeatureCollection()
     links = get_links()
+    attrs = get_link_attrs()
 
     for link_id, geom in links.items():
         control, result = control_links[link_id], results_links[link_id]
@@ -94,7 +95,7 @@ def main():
     max_link = max(control_links.values())
 
     for link_id, geom in links.items():
-        lc.add(geom, {'weight': control_links[link_id] * 1.0 / max_link,
+        lc.add(geom, {'weight': control_links[link_id]/float(attrs[link_id]['capacity']),
                       'link_id': link_id})
 
     for sensor_geom in get_sensors_json():
